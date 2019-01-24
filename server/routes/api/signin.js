@@ -16,37 +16,39 @@ module.exports = (app) => {
     //     .catch((err) => next(err));
     // });
     app.post('/api/account/signup', (req, res, next) => {
-        const { body } = req;
+        const {body} = req;
         const {
             firstName,
             lastName,
-            email,
             password
+        } = body;
+        let {
+            email
         } = body;
 
         if (!firstName) {
-            res.end({
+            return res.send({
                 success: false,
                 message: 'Error. First name must not be blank.'
             })
         }
 
         if (!lastName) {
-            res.end({
+            return res.send({
                 success: false,
                 message: 'Error. Last name must not be blank.'
             })
         }
 
         if (!email) {
-            res.end({
+            return res.send({
                 success: false,
                 message: 'Error. Email must not be blank.'
             })
         }
 
         if (!password) {
-            res.end({
+            return res.send({
                 success: false,
                 message: 'Error. Password must not be blank.'
             })
@@ -57,14 +59,14 @@ module.exports = (app) => {
         // Does email exist?
         User.find({
             email: email
-        }, (error, previousUsers) => {
+        }, (err, previousUsers) => {
             if (err) {
-                res.end({
+                return res.send({
                     success: false,
                     message: 'Error: Server error'
                 });
             } else if (previousUsers.length > 0) {
-                res.end({
+                return res.send({
                     success: false,
                     message: 'Error: User already exists.'
                 });
@@ -75,16 +77,15 @@ module.exports = (app) => {
             newUser.email = email;
             newUser.firstName = firstName;
             newUser.lastName = lastName; 
-            newUser.password = password;
-            newUser.generateHash(password);
+            newUser.password = newUser.generateHash(password);
             newUser.save((err, user) => {
                 if (err) {
-                    res.end({
+                    return res.send({
                         success: false,
                         message: 'Error: Server error'
                     });
                 } else {
-                    res.end({
+                    return res.send({
                         success: true,
                         message: 'Signed up'
                     });
